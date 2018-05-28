@@ -74,7 +74,7 @@ date<-date[order(date$month),]
 
 ## Addresses of pets
 
-Both dogs and cats are everywhere, and it is true that dogs are always outnumber cats in Seattle. The rate varies among districts. And It seems that people in the south have a stronger preference for dog.
+Both dogs and cats are everywhere, and it is true that dogs are always outnumber cats in Seattle. The rate varies among districts. And It seems that people in the south have a slightly stronger preference for dog.
 
 ```{r warning=FALSE,message=FALSE}
 library(zipcode)
@@ -82,11 +82,6 @@ library(ggmap)
 
 data(zipcode)
 seattle<-zipcode[zipcode$city=='Seattle',]
-
-p <- ggmap(get_googlemap(center = c(lon = -122.335167, lat = 47.608013),
-                         zoom = 11, scale = 2,
-                         maptype ='terrain',
-                         color = 'color'))
 
 dog.zip<-dog$zip_code
 dog.zip<-dog.zip[complete.cases(dog.zip)]
@@ -106,23 +101,24 @@ cat.zip$species<-rep('cat',nrow(cat.zip))
 
 zip<-rbind(dog.zip,cat.zip)
 zip[is.na(zip$freq),]$freq<-0
-zip<-zip[order(zip$zip),]
-library(plyr)
-zip$species<-revalue(zip$species, c("dog"="red", "cat"="blue"))
-tiny<-zip[1:2,]
 
-p + geom_point(aes(x = longitude, y = latitude, fill=species), data=tiny, color="gold",
-               size = 4, alpha = 1,pch=21)+
-  scale_fill_manual(values=tiny$species,labels=c("dog", "cat")) +
-  geom_point(aes(x = longitude, y = latitude), data=zip, color=zip$species,
-               size = zip$freq/300, alpha = 0.3)
-  
+bc_bbox <- make_bbox(lat = latitude, lon = longitude, data = zip)
+bc_bbox['right']=-122.2
+bc_bbox['bottom']=47.4
+m = get_map(location = bc_bbox, source = "google", maptype = "terrain-lines")
+
+ggmap(m)+geom_point(aes(x = longitude, y = latitude, color=factor(species), size=freq), data=zip,
+             alpha = 0.4) + 
+  scale_size_area(max_size = 10) + 
+  labs(x = "Longitude", y = "Latitude", 
+       title="Frequency of registered pets", color='species') +
+  scale_color_manual(values=c('blue','red'),labels=c('cat','dog'))
 ```
 
 
 ## Most popular names for pets
 
-'Lucy', 'Charlie', 'Bella', 'Luna', 'Oliver' and 'Max' seem to be shared names for dogs and cats. However, 'Buddy' and 'Sadie' seem to only works for dogs.
+'Lucy', 'Charlie', 'Bella', 'Luna', 'Oliver' and 'Max' seem to be shared names for dogs and cats. However, 'Buddy' and 'Sadie' seem to only work for dogs.
 
 ```{r warning=FALSE,message=FALSE}
 library(wordcloud)
