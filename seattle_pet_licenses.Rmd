@@ -76,7 +76,7 @@ date<-date[order(date$month),]
 
 Both dogs and cats are everywhere, and it is true that dogs are always outnumber cats in Seattle. The rate varies among districts. And It seems that people in the south have a slightly stronger preference for dog.
 
-```{r warning=FALSE,message=FALSE}
+```{r warning=FALSE,message=FALSE,fig.width=8,fig.height=9}
 library(zipcode)
 library(ggmap)
 
@@ -109,7 +109,7 @@ m = get_map(location = bc_bbox, source = "google", maptype = "terrain-lines")
 
 ggmap(m)+geom_point(aes(x = longitude, y = latitude, color=factor(species), size=freq), data=zip,
              alpha = 0.4) + 
-  scale_size_area(max_size = 10) + 
+  scale_size_area(max_size = 15) + 
   labs(x = "Longitude", y = "Latitude", 
        title="Frequency of registered pets", color='species') +
   scale_color_manual(values=c('blue','red'),labels=c('cat','dog'))
